@@ -1,0 +1,4 @@
+outs:
+- md5: 814c01b3fd2420811ba324c7ce155583
+  size: 10484215
+  path: samsum-train.json
