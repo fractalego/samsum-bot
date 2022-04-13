@@ -1,0 +1,15 @@
+schema: '2.0'
+stages:
+  create_dataset:
+    cmd: python -m src.create_dataset
+    deps:
+    - path: data/samsum-train.json
+      md5: 814c01b3fd2420811ba324c7ce155583
+      size: 10484215
+    - path: data/squad2-train.json
+      md5: 62108c273c268d70893182d5cf8df740
+      size: 42123633
+    outs:
+    - path: data/train.json
+      md5: 54103561ca1cce7b09a92e825296927c
+      size: 10397588

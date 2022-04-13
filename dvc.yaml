@@ -1,0 +1,8 @@
+stages:
+  create_dataset:
+    cmd: python -m src.create_dataset
+    deps:
+      - data/samsum-train.json
+      - data/squad2-train.json
+    outs:
+      - data/train.json
