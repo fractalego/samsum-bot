@@ -22,3 +22,12 @@ stages:
       - models/gptj/
       - data/samsum-val.json
       - src/test.py
+
+  generate_logits:
+    cmd: python -m src.generate_gptj_logits
+    deps:
+      - models/gptj/
+      - data/train.json
+      - src/generate_gptj_logits.py
+    outs:
+      - data/train_embeddings_logits_only.joblib

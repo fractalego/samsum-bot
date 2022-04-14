@@ -10,12 +10,12 @@ stages:
       md5: 62108c273c268d70893182d5cf8df740
       size: 42123633
     - path: src/create_dataset.py
-      md5: 7447e23db0533554b2cf5367e5a8ed18
-      size: 2127
+      md5: 06bd2e7fd2e1a4446613a676a59f3662
+      size: 2128
     outs:
     - path: data/train.json
-      md5: 1cbe24e3bf4dcd3bbef10df9af2bac6e
-      size: 10410747
+      md5: 16208c78766247c0ccd66c33ebbc1a98
+      size: 10110854
   train:
     cmd: python -m src.train
     deps:

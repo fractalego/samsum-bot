@@ -20,8 +20,7 @@ gpt.to(_device)
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
-num_epochs = 1
-lr = 1e-6
+num_epochs = 2
 
 if __name__ == "__main__":
     tokenized_train_data = tokenize_data(train_set, tokenizer)
@@ -29,7 +28,7 @@ if __name__ == "__main__":
     tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=90)
     test_batches = batchify(tokenized_test_data, 1)
 
-    optimizer = Adam8bit(gpt.parameters(), lr=1e-6)
+    optimizer = Adam8bit(gpt.parameters(), lr=1e-5)
 
     print("Trainable parameters:", get_n_params(gpt))
     gpt.train()
