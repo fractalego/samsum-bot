@@ -1,4 +1,5 @@
 import torch
+from torch.nn import functional as F
 
 from tqdm import tqdm
 
@@ -14,14 +15,6 @@ def get_n_params(model):
             nn = nn * s
         pp += nn
     return pp
-
-
-def make_only_adapters_as_trainable(model):
-    for name, param in model.named_parameters():
-        if "attn" in name and "adapter" in name:
-            continue
-
-        param.requires_grad = False
 
 
 def chunks(lst, n):
@@ -63,14 +56,14 @@ With the dialogue being:
     return text.replace("\r\n", "\n")
 
 
-def tokenize_data(data, tokenizer):
+def tokenize_data(data, tokenizer, max_length=110):
     _limit = 1024
     tokenized_data = []
     total_skipped = 0
     for item in data:
         text = create_text_from_summary_and_dialogue(item["summary"], item["dialogue"])
         tokens = tokenizer.encode(
-            text, return_tensors="pt", truncation=True, max_length=110
+            text, return_tensors="pt", truncation=True, max_length=max_length
         )
         if tokens.shape[1] > _limit:
             tokens = tokens[:, :_limit]
@@ -80,29 +73,24 @@ def tokenize_data(data, tokenizer):
     return tokenized_data
 
 
-def train(train_model, batches, optimizer):
-    train_model.train()
-    total_loss = 0.0
-    for i, batch in tqdm(enumerate(batches), total=len(batches)):
-        train_model.train()
-        inputs = batch
-        optimizer.zero_grad()
-        loss = train_model(inputs.cuda(), labels=inputs.cuda())[0]
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(train_model.parameters(), 0.5)
-        optimizer.step()
-        total_loss += loss.item()
-
-    return total_loss / len(batches)
-
-
 def test(test_model, batches):
     test_model.eval()
     total_loss = 0.0
-    for i, batch in tqdm(enumerate(batches), total=len(batches)):
-        test_model.eval()
-        inputs = batch
-        loss = test_model(inputs.cuda(), labels=inputs.cuda())[0]
-        total_loss += loss.item()
+    index = 0
+    for batch in tqdm(batches):
+        try:
+            out = test_model.forward(batch.cuda())
+            index += 1
 
-    return total_loss / len(batches)
+        except RuntimeError:
+            break
+
+        loss = F.cross_entropy(
+            out.logits[:, :-1, :].flatten(0, -2),
+            batch[:, 1:].flatten().cuda(),
+            reduction="mean",
+        )
+        total_loss += float(loss)
+        del batch
+
+    return total_loss / index

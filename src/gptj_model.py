@@ -17,19 +17,12 @@ class FrozenBNBLinear(nn.Module):
         self.register_buffer("weight", weight.requires_grad_(False))
         self.register_buffer("absmax", absmax.requires_grad_(False))
         self.register_buffer("code", code.requires_grad_(False))
-        self.adapter = nn.Sequential(
-            nn.Linear(self.in_features, adapter_dim, bias=False),
-            nn.Linear(adapter_dim, self.out_features, bias=False),
-        )
-        nn.init.zeros_(self.adapter[1].weight)
         self.bias = bias
 
     def forward(self, input):
         output = DequantizeAndLinear.apply(
             input, self.weight, self.absmax, self.code, self.bias
         )
-        if self.adapter:
-            output += self.adapter(input)
         return output
 
     @classmethod
@@ -80,11 +73,6 @@ class FrozenBNBEmbedding(nn.Module):
         self.register_buffer("weight", weight.requires_grad_(False))
         self.register_buffer("absmax", absmax.requires_grad_(False))
         self.register_buffer("code", code.requires_grad_(False))
-        self.adapter = nn.Sequential(
-            nn.Embedding(self.num_embeddings, adapter_dim),
-            nn.Linear(adapter_dim, self.embedding_dim, bias=False),
-        )
-        nn.init.zeros_(self.adapter[1].weight)
 
     def forward(self, input, **kwargs):
         with torch.no_grad():
@@ -93,8 +81,7 @@ class FrozenBNBEmbedding(nn.Module):
                 self.weight, absmax=self.absmax, code=self.code
             )
             output = F.embedding(input, weight_deq, **kwargs)
-        if self.adapter:
-            output += self.adapter(input)
+
         return output
 
     @classmethod

@@ -23,10 +23,23 @@ stages:
       md5: 1cbe24e3bf4dcd3bbef10df9af2bac6e
       size: 10410747
     - path: src/train.py
-      md5: 907e3641ef210b1a73ff17ff5b459fd9
-      size: 1559
+      md5: 40904328a6f09208081888094c879e68
+      size: 1796
     outs:
     - path: models/gptj/
-      md5: 8d2eac24d8b6050cfdf2fbb8a44c9ee5.dir
-      size: 6350761959
+      md5: 879d5d867c69cf92f590501525d0da72.dir
+      size: 6177232130
       nfiles: 2
+  test:
+    cmd: python -m src.test
+    deps:
+    - path: data/samsum-val.json
+      md5: 997367780930689e7473b5569cf961e3
+      size: 571716
+    - path: models/gptj/
+      md5: 879d5d867c69cf92f590501525d0da72.dir
+      size: 6177232130
+      nfiles: 2
+    - path: src/test.py
+      md5: 05f4291b94555d8989dced3312478e58
+      size: 731

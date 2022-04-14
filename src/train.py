@@ -4,7 +4,7 @@ import torch
 import transformers
 
 from src.gptj_model import GPTJForCausalLM
-from src.utils import make_only_adapters_as_trainable, tokenize_data, batchify
+from src.utils import tokenize_data, batchify, test, get_n_params
 from tqdm import tqdm
 from torch.nn import functional as F
 
@@ -18,16 +18,20 @@ gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usag
 gpt.to(_device)
 
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))
+test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
 num_epochs = 2
 
 if __name__ == "__main__":
-    make_only_adapters_as_trainable(gpt)
     tokenized_train_data = tokenize_data(train_set, tokenizer)
     train_batches = batchify(tokenized_train_data, 1)
+    tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=90)
+    test_batches = batchify(tokenized_test_data, 1)
 
-    gpt.gradient_checkpointing_enable()
-    optimizer = Adam8bit(gpt.parameters(), lr=1e-6)
+    optimizer = Adam8bit(gpt.parameters(), lr=1e-5)
+
+    print('Trainable parameters:', get_n_params(gpt))
+    gpt.train()
 
     with torch.cuda.amp.autocast():
 
@@ -48,5 +52,7 @@ if __name__ == "__main__":
                 optimizer.step()
                 optimizer.zero_grad()
                 del batch
+
+            print('Val loss:', test(gpt, test_batches))
 
     gpt.save_pretrained(os.path.join(_path, "../models/gptj"))

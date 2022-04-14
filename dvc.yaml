@@ -15,3 +15,10 @@ stages:
       - src/train.py
     outs:
       - models/gptj/
+
+  test:
+    cmd: python -m src.test
+    deps:
+      - models/gptj/
+      - data/samsum-val.json
+      - src/test.py
