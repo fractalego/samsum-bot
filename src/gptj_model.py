@@ -17,12 +17,15 @@ class FrozenBNBLinear(nn.Module):
         self.register_buffer("weight", weight.requires_grad_(False))
         self.register_buffer("absmax", absmax.requires_grad_(False))
         self.register_buffer("code", code.requires_grad_(False))
+        self.adapter = None
         self.bias = bias
 
     def forward(self, input):
         output = DequantizeAndLinear.apply(
             input, self.weight, self.absmax, self.code, self.bias
         )
+        if self.adapter:
+            output += self.adapter(input)
         return output
 
     @classmethod
@@ -73,15 +76,17 @@ class FrozenBNBEmbedding(nn.Module):
         self.register_buffer("weight", weight.requires_grad_(False))
         self.register_buffer("absmax", absmax.requires_grad_(False))
         self.register_buffer("code", code.requires_grad_(False))
+        self.adapter = None
 
     def forward(self, input, **kwargs):
         with torch.no_grad():
-            # note: both quantized weights and input indices are *not* differentiable
+            # note: both quantuized weights and input indices are *not* differentiable
             weight_deq = dequantize_blockwise(
                 self.weight, absmax=self.absmax, code=self.code
             )
             output = F.embedding(input, weight_deq, **kwargs)
-
+        if self.adapter:
+            output += self.adapter(input)
         return output
 
     @classmethod
@@ -164,3 +169,24 @@ class GPTJForCausalLM(transformers.models.gptj.modeling_gptj.GPTJForCausalLM):
 
 
 transformers.models.gptj.modeling_gptj.GPTJBlock = GPTJBlock  # monkey-patch GPT-J
+
+
+def add_adapters(model, adapter_dim=16):
+    assert adapter_dim > 0
+
+    for name, module in model.named_modules():
+        if isinstance(module, FrozenBNBLinear):
+            if not "attn" in name:
+                continue
+
+            module.adapter = nn.Sequential(
+                nn.Linear(module.in_features, adapter_dim, bias=False),
+                nn.Linear(adapter_dim, module.out_features, bias=False),
+            )
+            nn.init.zeros_(module.adapter[1].weight)
+        elif isinstance(module, FrozenBNBEmbedding):
+            module.adapter = nn.Sequential(
+                nn.Embedding(module.num_embeddings, adapter_dim),
+                nn.Linear(adapter_dim, module.embedding_dim, bias=False),
+            )
+            nn.init.zeros_(module.adapter[1].weight)

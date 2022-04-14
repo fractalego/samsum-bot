@@ -8,6 +8,7 @@ _device = "cuda"
 _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
+# gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usage=True)
 gpt = GPTJForCausalLM.from_pretrained(
     os.path.join(_path, "../models/gptj"), low_cpu_mem_usage=True
 )
@@ -40,9 +41,8 @@ if __name__ == "__main__":
         out = gpt.generate(
             **prompt, max_length=prompt["input_ids"].shape[1] + 10, do_sample=False
         )
-        out = out[0][prompt["input_ids"].shape[1]:]
+        out = out[0][prompt["input_ids"].shape[1] :]
         answer = tokenizer.decode(out)
         answer = answer[: answer.find("\n")].strip()
         print(answer)
         dialogue += answer
-

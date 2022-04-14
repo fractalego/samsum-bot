@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 def get_n_params(model):
     pp = 0
-    for p in list(model.parameters()):
+    for p in list(model.parameters(recurse=True)):
         if not p.requires_grad:
             continue
 
@@ -94,3 +94,14 @@ def test(test_model, batches):
         del batch
 
     return total_loss / index
+
+
+def make_only_attentions_as_trainable(model):
+    for name, param in model.state_dict().items():
+        if "attn" in name and "adapter" in name:
+            param.requires_grad = True
+            continue
+
+        param.requires_grad = False
+
+    return model

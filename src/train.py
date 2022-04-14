@@ -3,8 +3,14 @@ import os
 import torch
 import transformers
 
-from src.gptj_model import GPTJForCausalLM
-from src.utils import tokenize_data, batchify, test, get_n_params
+from src.gptj_model import GPTJForCausalLM, add_adapters
+from src.utils import (
+    tokenize_data,
+    batchify,
+    test,
+    get_n_params,
+    make_only_attentions_as_trainable,
+)
 from tqdm import tqdm
 from torch.nn import functional as F
 
@@ -15,7 +21,6 @@ _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usage=True)
-gpt.to(_device)
 
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
@@ -31,8 +36,12 @@ if __name__ == "__main__":
 
     optimizer = Adam8bit(gpt.parameters(), lr=1e-6)
 
-    print("Trainable parameters:", get_n_params(gpt))
     gpt.train()
+    add_adapters(gpt)
+    gpt.to(_device)
+
+    gpt = make_only_attentions_as_trainable(gpt)
+    print("Trainable parameters:", get_n_params(gpt))
 
     with torch.cuda.amp.autocast():
 
@@ -56,4 +65,4 @@ if __name__ == "__main__":
 
             print("Val loss:", test(gpt, test_batches))
 
-    gpt.save_pretrained(os.path.join(_path, "../models/gptj"))
+        gpt.save_pretrained(os.path.join(_path, "../models/gptj"))
