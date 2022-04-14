@@ -9,7 +9,24 @@ stages:
     - path: data/squad2-train.json
       md5: 62108c273c268d70893182d5cf8df740
       size: 42123633
+    - path: src/create_dataset.py
+      md5: 7447e23db0533554b2cf5367e5a8ed18
+      size: 2127
     outs:
     - path: data/train.json
-      md5: 54103561ca1cce7b09a92e825296927c
-      size: 10397588
+      md5: 1cbe24e3bf4dcd3bbef10df9af2bac6e
+      size: 10410747
+  train:
+    cmd: python -m src.train
+    deps:
+    - path: data/train.json
+      md5: 1cbe24e3bf4dcd3bbef10df9af2bac6e
+      size: 10410747
+    - path: src/train.py
+      md5: 907e3641ef210b1a73ff17ff5b459fd9
+      size: 1559
+    outs:
+    - path: models/gptj/
+      md5: 8d2eac24d8b6050cfdf2fbb8a44c9ee5.dir
+      size: 6350761959
+      nfiles: 2

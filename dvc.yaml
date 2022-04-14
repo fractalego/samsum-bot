@@ -2,7 +2,16 @@ stages:
   create_dataset:
     cmd: python -m src.create_dataset
     deps:
+      - src/create_dataset.py
       - data/samsum-train.json
       - data/squad2-train.json
     outs:
       - data/train.json
+
+  train:
+    cmd: python -m src.train
+    deps:
+      - data/train.json
+      - src/train.py
+    outs:
+      - models/gptj/
