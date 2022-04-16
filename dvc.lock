@@ -10,26 +10,25 @@ stages:
       md5: 62108c273c268d70893182d5cf8df740
       size: 42123633
     - path: src/create_dataset.py
-      md5: baf1fe962f140054769d27d60aca54be
+      md5: 510dd55806f0df5296fe50fa12fd59e0
       size: 2127
     outs:
     - path: data/train.json
-      md5: 137940b1231a9ac2f369825816fd327d
-      size: 10178040
+      md5: 7598e3481f27de860b3915613383b428
+      size: 10299223
   train:
     cmd: python -m src.train
     deps:
     - path: data/train.json
-      md5: 16208c78766247c0ccd66c33ebbc1a98
-      size: 10110854
+      md5: 7598e3481f27de860b3915613383b428
+      size: 10299223
     - path: src/train.py
-      md5: 2517291145ba6b96bdcd43ae1ff2c432
-      size: 1806
+      md5: c8620834183690eb2b5474274bb446d3
+      size: 1966
     outs:
     - path: models/gptj/
-      md5: ae3a96ab3f1034b1fac795ef2471c44a.dir
-      size: 6177232130
-      nfiles: 2
+      md5: 8061d04472c4ee10f71134dff43cb2b8
+      size: 6239537347
   test:
     cmd: python -m src.test
     deps:
@@ -37,26 +36,24 @@ stages:
       md5: 997367780930689e7473b5569cf961e3
       size: 571716
     - path: models/gptj/
-      md5: ae3a96ab3f1034b1fac795ef2471c44a.dir
-      size: 6177232130
-      nfiles: 2
+      md5: 8061d04472c4ee10f71134dff43cb2b8
+      size: 6239537347
     - path: src/test.py
-      md5: 05f4291b94555d8989dced3312478e58
-      size: 731
+      md5: 7376e3a9a258f40660fabd444b709995
+      size: 770
   generate_logits:
     cmd: python -m src.generate_gptj_logits
     deps:
     - path: data/train.json
-      md5: 16208c78766247c0ccd66c33ebbc1a98
-      size: 10110854
-    - path: models/gptj/
-      md5: ae3a96ab3f1034b1fac795ef2471c44a.dir
-      size: 6177232130
-      nfiles: 2
+      md5: 7598e3481f27de860b3915613383b428
+      size: 10299223
+    - path: models/gptj
+      md5: 8061d04472c4ee10f71134dff43cb2b8
+      size: 6239537347
     - path: src/generate_gptj_logits.py
-      md5: 2abec264cac33db09d929958229df1a4
-      size: 1622
+      md5: 69da8d516297408c14c76e05f41de6bd
+      size: 1648
     outs:
     - path: data/train_embeddings_logits_only.joblib
-      md5: a151883eadb9cb0ff645b80a4001dd08
-      size: 7164017114
+      md5: 1f17e81781accd736b51313cd5196150
+      size: 7212105196

@@ -1,22 +1,28 @@
 import json
 import os
+import torch
 import transformers
 
-from src.gptj_model import GPTJForCausalLM
+from src.gptj_model import GPTJForCausalLM, add_adapters
 from src.utils import tokenize_data, batchify, test
 
 _device = "cuda"
 _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
-gpt = GPTJForCausalLM.from_pretrained(
-    os.path.join(_path, "../models/gptj"), low_cpu_mem_usage=True
-)
-gpt.to(_device)
 
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
+num_epochs = 2
+
 if __name__ == "__main__":
-    tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=100)
+    tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=90)
     test_batches = batchify(tokenized_test_data, 1)
-    print(test(gpt, test_batches))
+
+    for epoch in range(num_epochs):
+        gpt = GPTJForCausalLM(config)
+        add_adapters(gpt)
+        gpt.load_state_dict(torch.load(os.path.join(_path, f"../models/gptj-{epoch}")))
+        gpt.to(_device)
+        print(f"Epoch {epoch}", test(gpt, test_batches))
+        del gpt

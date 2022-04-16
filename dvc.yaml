@@ -14,19 +14,19 @@ stages:
       - data/train.json
       - src/train.py
     outs:
-      - models/gptj/
+      - models/gptj-1
 
   test:
     cmd: python -m src.test
     deps:
-      - models/gptj/
+      - models/gptj-1
       - data/samsum-val.json
       - src/test.py
 
   generate_logits:
     cmd: python -m src.generate_gptj_logits
     deps:
-      - models/gptj/
+      - models/gptj-1
       - data/train.json
       - src/generate_gptj_logits.py
     outs:

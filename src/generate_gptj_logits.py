@@ -5,16 +5,16 @@ import transformers
 import torch
 
 from tqdm import tqdm
-from src.gptj_model import GPTJForCausalLM
+from src.gptj_model import GPTJForCausalLM, add_adapters
 from src.utils import create_text_from_summary_and_dialogue
 
 _device = "cuda"
 _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
-gpt = GPTJForCausalLM.from_pretrained(
-    os.path.join(_path, "../models/gptj"), low_cpu_mem_usage=True
-)
+gpt = GPTJForCausalLM(config)
+add_adapters(gpt)
+gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-1")))
 gpt.to(_device)
 
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))

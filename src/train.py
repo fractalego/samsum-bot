@@ -13,7 +13,6 @@ from src.utils import (
 )
 from tqdm import tqdm
 from torch.nn import functional as F
-
 from bitsandbytes.optim import Adam8bit
 
 _device = "cuda"
@@ -25,8 +24,8 @@ gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usag
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
-num_epochs = 1
-lr = 1e-6
+num_epochs = 3
+lr = 5e-7
 
 if __name__ == "__main__":
     tokenized_train_data = tokenize_data(train_set, tokenizer)
@@ -34,7 +33,7 @@ if __name__ == "__main__":
     tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=90)
     test_batches = batchify(tokenized_test_data, 1)
 
-    optimizer = Adam8bit(gpt.parameters(), lr=1e-6)
+    optimizer = Adam8bit(gpt.parameters(), lr=lr)
 
     gpt.train()
     add_adapters(gpt)
@@ -63,6 +62,5 @@ if __name__ == "__main__":
                 optimizer.zero_grad()
                 del batch
 
+            torch.save(gpt.state_dict(), os.path.join(_path, f"../models/gptj-{epoch}"))
             print("Val loss:", test(gpt, test_batches))
-
-        gpt.save_pretrained(os.path.join(_path, "../models/gptj"))
