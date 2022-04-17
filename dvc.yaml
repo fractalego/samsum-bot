@@ -14,20 +14,28 @@ stages:
       - data/train.json
       - src/train.py
     outs:
-      - models/gptj-1
+      - models/gptj-0
 
   test:
     cmd: python -m src.test
     deps:
-      - models/gptj-1
+      - models/gptj-0
       - data/samsum-val.json
       - src/test.py
 
   generate_logits:
     cmd: python -m src.generate_gptj_logits
     deps:
-      - models/gptj-1
+      - models/gptj-0
       - data/train.json
       - src/generate_gptj_logits.py
     outs:
       - data/train_embeddings_logits_only.joblib
+
+  distill:
+    cmd: python -m src.distill_gpt2_from_chechpoint
+    deps:
+      - models/gptj-0
+      - data/train_embeddings_logits_only.joblib
+      - data/samsum-val.json
+      - src/distill_gpt2_from_chechpoint.py

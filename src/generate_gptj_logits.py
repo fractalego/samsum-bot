@@ -14,7 +14,7 @@ config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 gpt = GPTJForCausalLM(config)
 add_adapters(gpt)
-gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-1")))
+gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-0")))
 gpt.to(_device)
 
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))

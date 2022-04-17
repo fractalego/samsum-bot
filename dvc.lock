@@ -10,24 +10,24 @@ stages:
       md5: 62108c273c268d70893182d5cf8df740
       size: 42123633
     - path: src/create_dataset.py
-      md5: 510dd55806f0df5296fe50fa12fd59e0
+      md5: baf1fe962f140054769d27d60aca54be
       size: 2127
     outs:
     - path: data/train.json
-      md5: 7598e3481f27de860b3915613383b428
-      size: 10299223
+      md5: 137940b1231a9ac2f369825816fd327d
+      size: 10178040
   train:
     cmd: python -m src.train
     deps:
     - path: data/train.json
-      md5: 7598e3481f27de860b3915613383b428
-      size: 10299223
+      md5: 137940b1231a9ac2f369825816fd327d
+      size: 10178040
     - path: src/train.py
-      md5: c8620834183690eb2b5474274bb446d3
-      size: 1966
+      md5: 4de65c13311ee9980497c5b562db3ab9
+      size: 1978
     outs:
-    - path: models/gptj/
-      md5: 8061d04472c4ee10f71134dff43cb2b8
+    - path: models/gptj-0
+      md5: e18cb8c1f8811ae11fd880446ae9e55b
       size: 6239537347
   test:
     cmd: python -m src.test
@@ -35,25 +35,25 @@ stages:
     - path: data/samsum-val.json
       md5: 997367780930689e7473b5569cf961e3
       size: 571716
-    - path: models/gptj/
-      md5: 8061d04472c4ee10f71134dff43cb2b8
+    - path: models/gptj-0
+      md5: e18cb8c1f8811ae11fd880446ae9e55b
       size: 6239537347
     - path: src/test.py
-      md5: 7376e3a9a258f40660fabd444b709995
-      size: 770
+      md5: 1aa0c4372b62a91754dc1687dd4751d4
+      size: 901
   generate_logits:
     cmd: python -m src.generate_gptj_logits
     deps:
     - path: data/train.json
-      md5: 7598e3481f27de860b3915613383b428
-      size: 10299223
-    - path: models/gptj
-      md5: 8061d04472c4ee10f71134dff43cb2b8
+      md5: 137940b1231a9ac2f369825816fd327d
+      size: 10178040
+    - path: models/gptj-0
+      md5: e18cb8c1f8811ae11fd880446ae9e55b
       size: 6239537347
     - path: src/generate_gptj_logits.py
-      md5: 69da8d516297408c14c76e05f41de6bd
-      size: 1648
+      md5: 1d19f0fae787fff5827ad44fcc9491be
+      size: 1650
     outs:
     - path: data/train_embeddings_logits_only.joblib
-      md5: 1f17e81781accd736b51313cd5196150
-      size: 7212105196
+      md5: b291faba3ae704d7db5e8c6b3ad06f9f
+      size: 7182571328

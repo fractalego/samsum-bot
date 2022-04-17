@@ -13,7 +13,7 @@ tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
-num_epochs = 2
+num_epochs = 1
 
 if __name__ == "__main__":
     tokenized_test_data = tokenize_data(test_set, tokenizer, max_length=90)

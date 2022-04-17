@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>A question answering bot</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400,700" rel="stylesheet" />
+    <link href="static/style.css" rel="stylesheet" />
+    {{ dropzone.load_css() }}
+    {{ dropzone.load_js() }}
+    <style>
+        .dropzone {
+            width: 190px;
+            border: dashed 1px lightgray;
+        }
+    </style>
+    <style type="text/css">
+        #graph {
+            width: 1200px;
+            height: 1000px;
+        }
+    </style>
+    <script src="static/client.js"></script>
+</head>
+
+<body>
+    <div class="top">
+        &nbsp;
+    </div>
+    <div class="row">
+        <div class="left_column">
+            <div>
+                <a href="/">
+                    <img id="thinking-face" src="images/thinking.webp" width="100px"></img>
+                </a>
+            </div>
+            <div>
+                {{ dropzone.create(action='transfer_file') }}
+                {{ dropzone.config() }}
+            </div>
+        </div>
+        <div class="main_column">
+            <textarea readonly id="dialogue"></textarea>
+            <input id="bobline" placeholder="Write here your query" autofocus>
+        </div>
+        <div class="right_column">
+            <div id="paragraph">
+            </div>
+        </div>
+    </div>
+
+    <div id="wait">
+        <img src="images/wait.png" width="60px"></img>
+    </div>
+
+</body>
+
+<script>
+    var input = document.getElementById("bobline");
+    input.addEventListener("keyup", function (event) {
+        enterCode = 13;
+        if (event.keyCode === enterCode) {
+            event.preventDefault();
+            get_reply();
+        }
+    });
+</script>
+
+</html>

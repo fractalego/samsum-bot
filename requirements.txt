@@ -8,3 +8,5 @@ bitsandbytes-cuda113==0.26.0
 datasets
 dvc
 notebook
+flask
+flask-cors

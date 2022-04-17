@@ -11,7 +11,7 @@ _candidate_answers = [
     "I do not know",
     "I have no information about this",
 ]
-_unknown_fraction = 0.2
+_unknown_fraction = 0.1
 
 
 def get_speakers(dialogue):

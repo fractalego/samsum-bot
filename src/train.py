@@ -24,8 +24,8 @@ gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usag
 train_set = json.load(open(os.path.join(_path, "../data/train.json")))
 test_set = json.load(open(os.path.join(_path, "../data/samsum-val.json")))
 
-num_epochs = 3
-lr = 5e-7
+num_epochs = 1
+lr = 1e-6
 
 if __name__ == "__main__":
     tokenized_train_data = tokenize_data(train_set, tokenizer)
