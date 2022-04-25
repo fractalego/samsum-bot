@@ -12,8 +12,6 @@ _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
-# gpt = GPTJForCausalLM.from_pretrained("hivemind/gpt-j-6B-8bit", low_cpu_mem_usage=True)
-
 gpt = GPTJForCausalLM(config)
 add_adapters(gpt)
 gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-0")))
@@ -51,11 +49,13 @@ def generate_reply(model, dialogue, query):
             num_return_sequences=1,
             pad_token_id=tokenizer.eos_token_id,
         )
-        out = out[0][prompt["input_ids"].shape[1]:]
+        out = out[0][prompt["input_ids"].shape[1] :]
         answer += tokenizer.decode(out)
 
-    end = min([answer.find(item) for item in terminal_characters if answer.find(item) > 0])
-    answer = answer[: end].strip()
+    end = min(
+        [answer.find(item) for item in terminal_characters if answer.find(item) > 0]
+    )
+    answer = answer[:end].strip()
 
     return answer, dialogue + answer
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     print(dialogue)
 
     while True:
-        user_input = ''
+        user_input = ""
         while not user_input:
             user_input = input("Alberto: ")
 

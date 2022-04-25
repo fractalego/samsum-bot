@@ -5,8 +5,7 @@ nltk==3.6.2
 gensim==4.0.1
 sklearn==0.0
 bitsandbytes-cuda113==0.26.0
-datasets
-dvc
-notebook
-flask
-flask-cors
+datasets==2.0.0
+dvc==2.10.1
+notebook==6.4.10
+cog==0.0.3

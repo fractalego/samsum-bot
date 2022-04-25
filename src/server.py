@@ -16,7 +16,7 @@ from src.run_cl_interface import generate_reply
 _path = os.path.dirname(__file__)
 _device = "cuda"
 
-bot_app = Flask('Bot', template_folder=os.path.join(_path, '../templates'))
+bot_app = Flask("Bot", template_folder=os.path.join(_path, "../templates"))
 CORS(bot_app)
 
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
@@ -41,18 +41,18 @@ John: Hello, how can I help?
 """.strip()
 
 
-@bot_app.route('/api/bot', methods=['POST'])
+@bot_app.route("/api/bot", methods=["POST"])
 def get_bot_reply():
-    if request.method != 'POST':
+    if request.method != "POST":
         return []
     data = json.loads(request.data)
-    dialogue = data['text']
-    query = data['bobline']
+    dialogue = data["text"]
+    query = data["bobline"]
     if query[-1] not in ["?", "!", "."]:
         query += "."
 
     answer, dialogue = generate_reply(gpt, dialogue, query)
-    return jsonify({'text': dialogue})
+    return jsonify({"text": dialogue})
 
 
 def root_dir():
@@ -67,21 +67,21 @@ def get_file(filename):
         return str(exc)
 
 
-@bot_app.route('/', defaults={'path': 'index.html'})
-@bot_app.route('/static/<path>')
+@bot_app.route("/", defaults={"path": "index.html"})
+@bot_app.route("/static/<path>")
 def get_resource(path):
     mimetypes = {
         ".css": "text/css",
         ".html": "text/html",
         ".js": "application/javascript",
     }
-    if 'index.html' in path:
-        return render_template('index.html')
+    if "index.html" in path:
+        return render_template("index.html")
 
     ext = os.path.splitext(path)[1]
     mimetype = mimetypes.get(ext, "text/html")
     if mimetype != "text/html":
-        path = 'static/' + path
+        path = "static/" + path
     complete_path = os.path.join(root_dir(), path)
     content = get_file(complete_path)
     return Response(content, mimetype=mimetype)
