@@ -1,6 +1,7 @@
 import os
 
 import torch
+import time
 import transformers
 
 from src.gptj_model import GPTJForCausalLM, add_adapters
@@ -65,10 +66,12 @@ if __name__ == "__main__":
     while True:
         user_input = ''
         while not user_input:
-            user_input = input()
+            user_input = input("Alberto: ")
 
         if user_input[-1] not in ["?", "!", "."]:
             user_input += "."
 
+        start = time.time()
         answer, dialogue = generate_reply(gpt, dialogue, user_input)
-        print(answer)
+        end = time.time()
+        print(f"John: {answer} [{end - start}s]")
