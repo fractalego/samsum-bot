@@ -6,7 +6,7 @@ from src.gptj_model import GPTJForCausalLM, add_adapters
 
 _path = os.path.dirname(__file__)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
     gpt = GPTJForCausalLM(config)
     add_adapters(gpt)
