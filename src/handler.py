@@ -18,15 +18,9 @@ class ChatbotHandler(BaseHandler):
 
     def initialize(self, ctx):
         self.manifest = ctx.manifest
-        self.device = torch.device(
-            "cuda"
-            if torch.cuda.is_available()
-            else "cpu"
-        )
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        _logger.info(
-            "Loading the fine-tuned GPT-J 6B model."
-        )
+        _logger.info("Loading the fine-tuned GPT-J 6B model.")
 
         self.tokenizer = transformers.AutoTokenizer.from_pretrained(
             "EleutherAI/gpt-j-6B"
@@ -40,35 +34,26 @@ class ChatbotHandler(BaseHandler):
         self.model.to(self.device)
         self.model.eval()
 
-        _logger.info(
-            "Transformer model loaded successfully."
-        )
+        _logger.info("Transformer model loaded successfully.")
         self.initialized = True
 
     def preprocess(self, data):
-        text = data[0].get("data")
-        if text is None:
-            text = data[0].get("body")
-        sentences = text.decode("utf-8")
-        _logger.info("Received text: '%s'", sentences)
-
-        prompt = self.tokenizer(sentences, return_tensors="pt")
+        text = data[0].get("body").get("data")
+        prompt = self.tokenizer(text, return_tensors="pt")
         prompt = {key: value.to(self.device) for key, value in prompt.items()}
         return prompt
 
     def inference(self, prompt):
-        out = self.model.generate(
+        return self.model.generate(
             **prompt,
             max_length=prompt["input_ids"].shape[1] + 5,
             num_beams=2,
             num_return_sequences=1,
             pad_token_id=self.tokenizer.eos_token_id,
         )
-        out = out[0][prompt["input_ids"].shape[1] :]
-        return [out]
 
     def postprocess(self, inference_output):
-        return inference_output
+        return inference_output.tolist()
 
 
 _service = ChatbotHandler()
