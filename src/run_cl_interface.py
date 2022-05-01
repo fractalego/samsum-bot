@@ -1,6 +1,5 @@
 import os
 
-import torch
 import time
 import transformers
 
@@ -12,9 +11,7 @@ _path = os.path.dirname(__file__)
 config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
-gpt = GPTJForCausalLM(config)
-add_adapters(gpt)
-gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-0")))
+gpt = GPTJForCausalLM.from_pretrained("fractalego/samsumbot")
 gpt.to(_device)
 
 summary = """

@@ -11,4 +11,4 @@ if __name__ == "__main__":
     gpt = GPTJForCausalLM(config)
     add_adapters(gpt)
     gpt.load_state_dict(torch.load(os.path.join(_path, "../models/gptj-0")))
-    gpt.push_to_hub("samsum_bot")
+    gpt.push_to_hub(repo_path_or_name="fractalego/samsumbot", private=True)

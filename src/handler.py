@@ -28,7 +28,11 @@ class ChatbotHandler(BaseHandler):
         config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
         gpt = GPTJForCausalLM(config)
         add_adapters(gpt)
-        gpt.load_state_dict(torch.load(os.path.join(_path, "gptj-0")))
+        gpt.load_state_dict(
+            torch.load(
+                os.path.join(_path, "gptj_model"), map_location=torch.device("cpu")
+            )
+        )
         self.model = gpt
 
         self.model.to(self.device)

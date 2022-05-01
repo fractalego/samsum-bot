@@ -2,3 +2,7 @@
 .env/
 .dvc/
 data/
+logs/
+notebooks/
+templates/
+models/
