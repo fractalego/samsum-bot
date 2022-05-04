@@ -4,7 +4,7 @@ import torch
 import transformers
 
 from ts.torch_handler.base_handler import BaseHandler
-from gptj_model import GPTJForCausalLM, add_adapters
+from gptj_model import GPTJForCausalLM
 
 _path = os.path.dirname(__file__)
 _logger = logging.getLogger(__file__)
@@ -27,7 +27,6 @@ class ChatbotHandler(BaseHandler):
         )
         config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
         gpt = GPTJForCausalLM(config)
-        add_adapters(gpt)
         gpt.load_state_dict(
             torch.load(
                 os.path.join(_path, "gptj_model"), map_location=torch.device("cpu")

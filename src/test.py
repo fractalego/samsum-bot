@@ -3,7 +3,7 @@ import os
 import torch
 import transformers
 
-from src.gptj_model import GPTJForCausalLM, add_adapters
+from src.gptj_model import GPTJForCausalLM
 from src.utils import tokenize_data, batchify, test
 
 _device = "cuda"
@@ -21,7 +21,6 @@ if __name__ == "__main__":
 
     for epoch in range(num_epochs):
         gpt = GPTJForCausalLM(config)
-        add_adapters(gpt)
         gpt.load_state_dict(torch.load(os.path.join(_path, f"../models/gptj-{epoch}")))
         gpt.to(_device)
         print(f"Epoch {epoch}", test(gpt, test_batches))

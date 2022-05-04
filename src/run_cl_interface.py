@@ -3,7 +3,7 @@ import os
 import time
 import transformers
 
-from src.gptj_model import GPTJForCausalLM, add_adapters
+from src.gptj_model import GPTJForCausalLM
 from src.utils import create_text_from_summary_and_dialogue
 
 _device = "cuda"

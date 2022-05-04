@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.
+FROM nvidia/cuda:11.2.0-cudnn8-devel-ubuntu20.04
 RUN mkdir /app
 RUN mkdir /app/models
 RUN mkdir /app/src
@@ -16,6 +16,7 @@ RUN apt install -y nvidia-utils-470 nvidia-driver-470
 RUN apt install -y openjdk-11-jdk
 RUN apt install -y python3 python3-pip
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --upgrade requests
 
 COPY ./src/ /app/src/
 RUN python3 -m src.download_model
@@ -23,5 +24,7 @@ RUN python3 -m src.download_model
 RUN torch-model-archiver --model-name "bot" --version 0.0.1 \
     --extra-files "/app/src/gptj_model.py,/app/models/gptj_model" \
     --handler /app/src/handler.py --export-path /app/models/
+
+COPY config.properties /app/
 
 CMD ["torchserve", "--start", "--model-store", "models", "--models", "bot=bot.mar", "--foreground"]

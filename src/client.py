@@ -4,7 +4,7 @@ import transformers
 
 from src.utils import create_text_from_summary_and_dialogue
 
-_server_url = f"http://127.0.0.1:8080/predictions/bot"
+_server_url = f"https://127.0.0.1:8080/predictions/bot"
 
 _tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
@@ -27,7 +27,7 @@ dialogue += "\nAlberto: "
 
 def predict_answer(question: str):
     payload = {"data": question}
-    r = requests.post(_server_url, json=payload)
+    r = requests.post(_server_url, json=payload, verify=False)
     answer = json.loads(r.content.decode("utf-8"))
     print(_tokenizer.decode(answer))
 

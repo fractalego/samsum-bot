@@ -11,5 +11,6 @@ config = transformers.GPTJConfig.from_pretrained("EleutherAI/gpt-j-6B")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
 
 if __name__ == "__main__":
-    gpt = GPTJForCausalLM.from_pretrained("fractalego/samsumbot")
+    gpt = GPTJForCausalLM(config)
+    gpt = gpt.from_pretrained("fractalego/samsumbot")
     torch.save(gpt.state_dict(), _save_path)

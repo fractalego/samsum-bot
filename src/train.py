@@ -3,7 +3,7 @@ import os
 import torch
 import transformers
 
-from src.gptj_model import GPTJForCausalLM, add_adapters
+from src.gptj_model import GPTJForCausalLM
 from src.utils import (
     tokenize_data,
     batchify,
@@ -36,7 +36,6 @@ if __name__ == "__main__":
     optimizer = Adam8bit(gpt.parameters(), lr=lr)
 
     gpt.train()
-    add_adapters(gpt)
     gpt.to(_device)
 
     gpt = make_only_attentions_as_trainable(gpt)
