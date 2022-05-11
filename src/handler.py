@@ -42,15 +42,18 @@ class ChatbotHandler(BaseHandler):
 
     def preprocess(self, data):
         text = data[0].get("body").get("data")
+        num_beams = data[0].get("body").get("num_beams")
         prompt = self.tokenizer(text, return_tensors="pt")
         prompt = {key: value.to(self.device) for key, value in prompt.items()}
-        return prompt
+        return {"prompt": prompt, "num_beams": num_beams}
 
-    def inference(self, prompt):
+    def inference(self, data):
+        prompt = data["prompt"]
+        num_beams = data["num_beams"]
         return self.model.generate(
             **prompt,
             max_length=prompt["input_ids"].shape[1] + 5,
-            num_beams=2,
+            num_beams=num_beams,
             num_return_sequences=1,
             pad_token_id=self.tokenizer.eos_token_id,
         )

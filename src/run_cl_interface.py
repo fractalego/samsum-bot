@@ -42,7 +42,7 @@ def generate_reply(model, dialogue, query):
         out = model.generate(
             **prompt,
             max_length=prompt["input_ids"].shape[1] + 5,
-            num_beams=2,
+            num_beams=3,
             num_return_sequences=1,
             pad_token_id=tokenizer.eos_token_id,
         )
