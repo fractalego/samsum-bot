@@ -68,6 +68,24 @@ class DequantizeAndLinear(torch.autograd.Function):
         grad_bias = grad_output.flatten(0, -2).sum(dim=0) if ctx._has_bias else None
         return grad_input, None, None, None, grad_bias
 
+#    @staticmethod
+#    def symbolic(
+#        g,
+#        input: torch.Tensor,
+#        weights_quantized: torch.ByteTensor,
+#        absmax: torch.FloatTensor,
+#        code: torch.FloatTensor,
+#        bias: torch.FloatTensor,
+#    ):
+#        return g.op(
+#            "DequantizeAndLinear",
+#            input,
+#            weights_quantized,
+#            absmax,
+#            code,
+#            g.op("Constant", value_t=torch.tensor(0, dtype=torch.float)),
+#        )
+
 
 class FrozenBNBEmbedding(nn.Module):
     def __init__(self, weight, absmax, code):
