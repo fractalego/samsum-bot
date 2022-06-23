@@ -23,8 +23,9 @@ COPY ./src/ /app/src/
 RUN git clone https://github.com/NVIDIA-AI-IOT/torch2trt
 RUN pip install torch2trt/
 
-COPY ./models/gptj_model models/
 COPY ./samsumbot_onnx/ onnx/
+
+CMD ["sleep", "36000"]
 
 
 #RUN python3 -m src.download_models

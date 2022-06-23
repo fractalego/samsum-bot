@@ -1,7 +1,6 @@
 import onnx
 import os
 
-from transformers import onnx
 
 _path = os.path.dirname(__file__)
 _save_path_onnx = os.path.join(_path, "../samsumbot_onnx/gptj_model.onnx")
