@@ -69,23 +69,21 @@ class DequantizeAndLinear(torch.autograd.Function):
         return grad_input, None, None, None, grad_bias
 
 
-    @staticmethod
-    def symbolic(
-        g,
-        input: torch.Tensor,
-        weights_quantized: torch.ByteTensor,
-        absmax: torch.FloatTensor,
-        code: torch.FloatTensor,
-        bias: torch.FloatTensor,
-    ):
-        return g.op(
-            "DequantizeAndLinear",
-            input,
-            weights_quantized,
-            absmax,
-            code,
-            g.op("Constant", value_t=torch.tensor(0, dtype=torch.float)),
-        )
+def symbolic_python_op(g: torch._C.Graph, n: torch._C.Node, *args, **kwargs):
+    print("original node: ", n)
+    for i, out in enumerate(n.outputs()):
+        print("original output {}: {}, requires grad: {}".format(i, out, out.requiresGrad()))
+    import torch.onnx.symbolic_helper as sym_helper
+    for i, arg in enumerate(args):
+        requires_grad = arg.requiresGrad() if sym_helper._is_value(arg) else False
+        print("arg {}: {}, requires grad: {}".format(i, arg, requires_grad))
+    ret = g.op("DequantizeAndLinear", args[0])
+    ret.setType(n.output().type())
+    return ret
+
+
+from torch.onnx import register_custom_op_symbolic
+register_custom_op_symbolic("prim::PythonOp", symbolic_python_op, 1)
 
 
 class FrozenBNBEmbedding(nn.Module):

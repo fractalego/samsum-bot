@@ -4,6 +4,7 @@ import torch
 import transformers
 
 from src.gptj_model import GPTJForCausalLM
+#from transformer_deploy.backends.pytorch_utils import convert_to_onnx
 
 _path = os.path.dirname(__file__)
 _device = "cuda"
@@ -22,10 +23,9 @@ if __name__ == "__main__":
                       x,  # model input (or a tuple for multiple inputs)
                       _save_path_onnx,  # where to save the model (can be a file or file-like object)
                       export_params=True,  # store the trained parameter weights inside the model file
-                      opset_version=13,  # the ONNX version to export the model to
+                      opset_version=15,  # the ONNX version to export the model to
                       do_constant_folding=True,  # whether to execute constant folding for optimization
                       input_names=['input'],  # the model's input names
                       output_names=['output'],  # the model's output names
-                      use_external_data_format=True,
                       dynamic_axes={'input': {0: 'batch_size'},  # variable length axes
                                     'output': {0: 'batch_size'}})
