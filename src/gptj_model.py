@@ -3,7 +3,6 @@ import torch.nn.functional as F
 import transformers
 
 from torch import nn
-from torch.cuda.amp import custom_fwd, custom_bwd
 from bitsandbytes.functional import quantize_blockwise, dequantize_blockwise
 
 adapter_dim = 16
@@ -21,12 +20,22 @@ class FrozenBNBLinear(nn.Module):
         self.bias = bias
 
     def forward(self, input):
-        output = DequantizeAndLinear.apply(
-            input, self.weight, self.absmax, self.code, self.bias
+        weights_deq = dequantize_blockwise(
+            self.weight, absmax=self.absmax, code=self.code
         )
+        output = F.linear(input, weights_deq, self.bias)
         if self.adapter:
             output += self.adapter(input)
         return output
+
+    def backward(self, grad_output: torch.Tensor):
+        # grad_output: [*batch, out_features]
+        weights_deq = dequantize_blockwise(
+            self.weight, absmax=self.absmax, code=self.code
+        )
+        grad_input = grad_output @ weights_deq
+        grad_bias = grad_output.flatten(0, -2).sum(dim=0) if self.bias else None
+        return grad_input, None, None, None, grad_bias
 
     @classmethod
     def from_linear(cls, linear: nn.Linear) -> "FrozenBNBLinear":
@@ -35,55 +44,6 @@ class FrozenBNBLinear(nn.Module):
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.in_features}, {self.out_features})"
-
-
-class DequantizeAndLinear(torch.autograd.Function):
-    @staticmethod
-    @custom_fwd
-    def forward(
-        ctx,
-        input: torch.Tensor,
-        weights_quantized: torch.ByteTensor,
-        absmax: torch.FloatTensor,
-        code: torch.FloatTensor,
-        bias: torch.FloatTensor,
-    ):
-        weights_deq = dequantize_blockwise(weights_quantized, absmax=absmax, code=code)
-        ctx.save_for_backward(input, weights_quantized, absmax, code)
-        ctx._has_bias = bias is not None
-        return F.linear(input, weights_deq, bias)
-
-    @staticmethod
-    @custom_bwd
-    def backward(ctx, grad_output: torch.Tensor):
-        assert (
-            not ctx.needs_input_grad[1]
-            and not ctx.needs_input_grad[2]
-            and not ctx.needs_input_grad[3]
-        )
-        input, weights_quantized, absmax, code = ctx.saved_tensors
-        # grad_output: [*batch, out_features]
-        weights_deq = dequantize_blockwise(weights_quantized, absmax=absmax, code=code)
-        grad_input = grad_output @ weights_deq
-        grad_bias = grad_output.flatten(0, -2).sum(dim=0) if ctx._has_bias else None
-        return grad_input, None, None, None, grad_bias
-
-
-def symbolic_python_op(g: torch._C.Graph, n: torch._C.Node, *args, **kwargs):
-    print("original node: ", n)
-    for i, out in enumerate(n.outputs()):
-        print("original output {}: {}, requires grad: {}".format(i, out, out.requiresGrad()))
-    import torch.onnx.symbolic_helper as sym_helper
-    for i, arg in enumerate(args):
-        requires_grad = arg.requiresGrad() if sym_helper._is_value(arg) else False
-        print("arg {}: {}, requires grad: {}".format(i, arg, requires_grad))
-    ret = g.op("DequantizeAndLinear", args[0])
-    ret.setType(n.output().type())
-    return ret
-
-
-from torch.onnx import register_custom_op_symbolic
-register_custom_op_symbolic("prim::PythonOp", symbolic_python_op, 1)
 
 
 class FrozenBNBEmbedding(nn.Module):
