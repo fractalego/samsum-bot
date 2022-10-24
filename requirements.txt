@@ -1,6 +1,6 @@
 transformers==4.17.0
 sentence_transformers==2.0.0
-torch==1.11.0
+torch==1.12.1
 nltk==3.6.2
 gensim==4.0.1
 sklearn==0.0
